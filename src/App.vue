@@ -15,7 +15,11 @@
                 <h1 class="unselectable">Dashboard</h1>
                 <h2 class="unselectable">Silk Scraper</h2>
                 <div class="profile-pic unselectable">
-                    <img src="./assets/user.png" alt="Profile Picture">
+                    <!-- <img src="./assets/user.png" alt="Profile Picture"> -->
+                    <router-link v-if="!user" to="/login">Login</router-link>
+                    <router-link v-if="!user" to="/signup">Sign Up</router-link>
+                    <router-link v-if="isAdmin" to="/adminPage">Admin Panel</router-link>
+                    <button v-if="user" @click="logout">Logout</button>    
                 </div>
             </header>
             <router-view/>
@@ -24,13 +28,69 @@
 </template>
 
 <script>
+    import { ref, onMounted, onUnmounted, computed } from 'vue';
+    import { auth } from '@/firebase';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { useRouter } from 'vue-router';
+    import { useStore } from 'vuex';
     import ModeSwitchBtn from './components/ModeSwitchBtn.vue';
 
     export default {
+        setup() {
+        const user = ref(null);
+        const router = useRouter();
+        const store = useStore();
+        const userObj = ref(null);
+
+        const fetchUserData = async (email) => {
+            try {
+                const response = await fetch('http://localhost:3000/api/getUserByEmail?email=' + email);
+                if (!response.ok) {
+                    throw new Error('Server responded with ' + response.status);
+                }
+                const data = await response.json();
+                userObj.value = data;
+                console.log(userObj.value.userType)
+            } catch (error) {
+                console.error('Failed to fetch user', error);
+            }
+        };
+
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            store.dispatch('setUser', firebaseUser);
+            user.value = firebaseUser;
+            if (firebaseUser && firebaseUser.email) {
+                fetchUserData(firebaseUser.email);
+            }
+        });
+
+        const isAdmin = computed(() => {
+            return userObj.value && userObj.value.userType === 0;
+        });
+
+        onMounted(() => {
+            if (user.value && user.value.email) {
+                fetchUserData(user.value.email);
+            }
+        });
+
+        onUnmounted(() => {
+            unsubscribe();
+        });
+
+        const logout = async () => {
+            await auth.signOut();
+            store.dispatch('setUser', null);
+            user.value = null;
+            userObj.value = null;
+            router.push('/');
+        };
+
+        return { user, logout, userObj, isAdmin };
+    },
         components: {
             ModeSwitchBtn
         },
-
     };
 </script>
 
