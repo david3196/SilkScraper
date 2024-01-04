@@ -5,8 +5,8 @@
                 <button class="nav-item active"><i class="fas fa-tachometer-alt"></i></button>
                 <button class="nav-item"><i class="fas fa-folder-open"></i></button>
                 <button class="nav-item"><i class="fas fa-chart-line"></i></button>
+                <button class="nav-item"><i class="fas fa-spider"></i></button>
             </nav>
-            <button class="nav-item settings"><i class="fas fa-cog"></i></button>
             <ModeSwitchBtn/>
         </aside>
 
@@ -14,12 +14,18 @@
             <header class="main-header">
                 <h1 class="unselectable">Dashboard</h1>
                 <h2 class="unselectable">Silk Scraper</h2>
-                <div class="profile-pic unselectable">
-                    <!-- <img src="./assets/user.png" alt="Profile Picture"> -->
-                    <router-link v-if="!user" to="/login">Login</router-link>
-                    <router-link v-if="!user" to="/signup">Sign Up</router-link>
-                    <router-link v-if="isAdmin" to="/adminPage">Admin Panel</router-link>
-                    <button v-if="user" @click="logout">Logout</button>    
+                <div class="profile-pic dropdown unselectable">
+                    <button class="profile-button" @click="toggleDropdown">
+                        <img src="./assets/user.png" alt="Profile Picture">
+                        <!-- TODO -->
+                        <!-- <img v-if="user" :src="user.profilePicture">
+                        <img v-else :src="assets/user.png"> --> 
+                    </button>
+                    <div v-if="dropdownOpen" class="dropdown-menu">
+                        <router-link v-if="!user" to="/login" class="dropdown-item">Login</router-link>
+                        <router-link v-if="!user" to="/signup" class="dropdown-item">Sign Up</router-link>
+                        <button v-if="user" @click="logout" class="dropdown-item">Logout</button>
+                    </div>   
                 </div>
             </header>
             <router-view/>
@@ -41,6 +47,7 @@
         const router = useRouter();
         const store = useStore();
         const userObj = ref(null);
+        const dropdownOpen = ref(false);
 
         const fetchUserData = async (email) => {
             try {
@@ -83,10 +90,15 @@
             store.dispatch('setUser', null);
             user.value = null;
             userObj.value = null;
+            dropdownOpen.value = false;
             router.push('/');
         };
 
-        return { user, logout, userObj, isAdmin };
+        const toggleDropdown = () => {
+            dropdownOpen.value = !dropdownOpen.value;
+        };
+
+        return { user, logout, userObj, isAdmin, dropdownOpen, toggleDropdown };
     },
         components: {
             ModeSwitchBtn
@@ -186,6 +198,32 @@
     .profile-pic img {
         width: 100%;
         height: auto;
+    }
+
+    .profile-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+
+    .dropdown-menu .dropdown-item {
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown .dropdown-menu {
+        display: block;
     }
 
 </style>
