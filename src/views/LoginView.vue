@@ -48,4 +48,6 @@ export default {
 };
 </script>
 
-
+<style scoped>
+    @import "@/assets/styles/form.css";
+</style>

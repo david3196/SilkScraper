@@ -2,7 +2,7 @@
     <div class="app-container">
         <aside class="sidebar">
             <nav>
-                <button class="nav-item active"><i class="fas fa-tachometer-alt"></i></button>
+                <button class="nav-item active" @click="dashboard"><i class="fas fa-tachometer-alt"></i></button>
                 <button class="nav-item"><i class="fas fa-folder-open"></i></button>
                 <button class="nav-item"><i class="fas fa-chart-line"></i></button>
                 <button class="nav-item"><i class="fas fa-spider"></i></button>
@@ -13,7 +13,7 @@
         <main class="main-content">
             <header class="main-header">
                 <h1 class="unselectable">Dashboard</h1>
-                <h2 class="unselectable">Silk Scraper</h2>
+                <h2 class="unselectable site-name">Silk Scraper</h2>
                 <div class="profile-pic dropdown unselectable">
                     <button class="profile-button" @click="toggleDropdown">
                         <img src="./assets/user.png" alt="Profile Picture">
@@ -22,8 +22,8 @@
                         <img v-else :src="assets/user.png"> --> 
                     </button>
                     <div v-if="dropdownOpen" class="dropdown-menu">
-                        <router-link v-if="!user" to="/login" class="dropdown-item">Login</router-link>
-                        <router-link v-if="!user" to="/signup" class="dropdown-item">Sign Up</router-link>
+                        <router-link v-if="!user" to="/login"  @click="login" class="dropdown-item">Login</router-link>
+                        <router-link v-if="!user" to="/signup"  @click="signup" class="dropdown-item">Sign Up</router-link>
                         <button v-if="user" @click="logout" class="dropdown-item">Logout</button>
                     </div>   
                 </div>
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-    import { ref, onMounted, onUnmounted, computed } from 'vue';
+    import { ref, onMounted, onUnmounted } from 'vue';
     import { auth } from '@/firebase';
     import { onAuthStateChanged } from 'firebase/auth';
     import { useRouter } from 'vue-router';
@@ -71,10 +71,6 @@
             }
         });
 
-        const isAdmin = computed(() => {
-            return userObj.value && userObj.value.userType === 0;
-        });
-
         onMounted(() => {
             if (user.value && user.value.email) {
                 fetchUserData(user.value.email);
@@ -94,11 +90,23 @@
             router.push('/');
         };
 
+        const dashboard = async () => {
+            router.push('/');
+        };
+
+        const login = async () => {
+            dropdownOpen.value = false;
+        };
+
+        const signup = async () => {
+            dropdownOpen.value = false;
+        };
+
         const toggleDropdown = () => {
             dropdownOpen.value = !dropdownOpen.value;
         };
 
-        return { user, logout, userObj, isAdmin, dropdownOpen, toggleDropdown };
+        return { user, logout, dashboard, login, signup, userObj, dropdownOpen, toggleDropdown };
     },
         components: {
             ModeSwitchBtn
@@ -192,7 +200,7 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        overflow: hidden;
+        position: relative;
     }
 
     .profile-pic img {
@@ -210,21 +218,45 @@
         display: none;
         position: absolute;
         right: 0;
-        background-color: #f9f9f9;
+        top: 100%; 
+        background-color: rgba(0, 0, 0, 0.7);
         min-width: 160px;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        z-index: 1;
+        z-index: 100;
+        text-align: center;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+
+    .dropdown-menu::before {
+        content: '';
+        position: absolute;
+        top: -10px; 
+        right: 12px;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid rgba(0, 0, 0, 0.7); 
     }
 
     .dropdown-menu .dropdown-item {
         padding: 12px 16px;
         text-decoration: none;
         display: block;
+        color: white;
+    }
+
+    .dropdown-menu .dropdown-item:hover {
+        background-color: #f60;
     }
 
     .dropdown .dropdown-menu {
         display: block;
     }
-
+    
+    @media (max-width: 767px) {
+        .site-name {
+            display: none;
+        }
+    }
 </style>
 

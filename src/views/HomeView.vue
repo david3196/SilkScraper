@@ -145,6 +145,7 @@
 .vuecal__heading .weekday-label {
     font-size: 0.8em;
 }
+
 .card {
     flex: 1 1 calc(50% - 20px);
     height: calc((100vh - 70px) / 2 - 20px);
@@ -156,13 +157,14 @@
     box-sizing: border-box;
     overflow: hidden;
 }
+
 .cards-container {
-  flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start; 
-  overflow-y: auto; 
-  margin: 10px; 
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start; 
+    overflow-y: auto; 
+    margin: 10px; 
 }
 
 .card h3 {
@@ -255,7 +257,6 @@
 .scraping-tasks-item span:first-child {
     font-weight: bold;
 }
-
 
 .my-tasks-card {
     background-color: #333;
@@ -357,5 +358,21 @@
         width: 100%;
         flex: 1 calc(100% - 20px);
     }
+    
+    .vuecal__no-event {
+        font-size: 0;
+        visibility: hidden;
+    }
+
+    .vuecal__no-event::after {
+        content: "None";
+        font-size: 10px;
+        visibility: visible;
+    }
+
+    .vuecal__header{
+        font-size: 12px;
+    }
+
 }
 </style>
