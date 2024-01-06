@@ -2,17 +2,17 @@
     <div class="app-container">
         <aside class="sidebar">
             <nav>
-                <button class="nav-item active" @click="dashboard"><i class="fas fa-tachometer-alt"></i></button>
-                <button class="nav-item"><i class="fas fa-folder-open"></i></button>
-                <button class="nav-item"><i class="fas fa-chart-line"></i></button>
-                <button class="nav-item"><i class="fas fa-spider"></i></button>
+                <button :class="['nav-item', { active: currentRouteName === 'home' }]" @click="goTo('home')"><i class="fas fa-tachometer-alt"></i></button>
+                <button :class="['nav-item', { active: currentRouteName === 'reports' }]" @click="goTo('reports')"><i class="fas fa-folder-open"></i></button>
+                <button :class="['nav-item', { active: currentRouteName === 'analytics' }]" @click="goTo('analytics')"><i class="fas fa-chart-line"></i></button>
+                <button :class="['nav-item', { active: currentRouteName === 'scheduler' }]" @click="goTo('scheduler')"><i class="fas fa-spider"></i></button>
             </nav>
             <ModeSwitchBtn/>
         </aside>
 
         <main class="main-content">
             <header class="main-header">
-                <h1 class="unselectable">Dashboard</h1>
+                <h1 class="unselectable">{{ route.meta.title }}</h1>
                 <h2 class="unselectable site-name">Silk Scraper</h2>
                 <div class="profile-pic dropdown unselectable">
                     <button class="profile-button" @click="toggleDropdown">
@@ -34,20 +34,27 @@
 </template>
 
 <script>
-    import { ref, onMounted, onUnmounted } from 'vue';
+    import { ref, onMounted, onUnmounted, computed  } from 'vue';
     import { auth } from '@/firebase';
     import { onAuthStateChanged } from 'firebase/auth';
-    import { useRouter } from 'vue-router';
+    import { useRouter, useRoute  } from 'vue-router';
     import { useStore } from 'vuex';
     import ModeSwitchBtn from './components/ModeSwitchBtn.vue';
 
     export default {
         setup() {
         const user = ref(null);
+        const route = useRoute();
         const router = useRouter();
         const store = useStore();
         const userObj = ref(null);
         const dropdownOpen = ref(false);
+
+        const currentRouteName = computed(() => route.name);
+
+        const goTo = (name) => {
+            router.push({ name });
+        };
 
         const fetchUserData = async (email) => {
             try {
@@ -94,6 +101,10 @@
             router.push('/');
         };
 
+        const scheduler = async () => {
+            router.push('/scheduler');
+        };
+
         const login = async () => {
             dropdownOpen.value = false;
         };
@@ -106,7 +117,7 @@
             dropdownOpen.value = !dropdownOpen.value;
         };
 
-        return { user, logout, dashboard, login, signup, userObj, dropdownOpen, toggleDropdown };
+        return { user, currentRouteName, goTo, route, logout, dashboard, scheduler, login, signup, userObj, dropdownOpen, toggleDropdown };
     },
         components: {
             ModeSwitchBtn
@@ -252,7 +263,7 @@
     .dropdown .dropdown-menu {
         display: block;
     }
-    
+
     @media (max-width: 767px) {
         .site-name {
             display: none;
