@@ -4,6 +4,7 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
+const cron = require('node-cron');
 
 const port = 3000;
 const mongoUri = 'mongodb://127.0.0.1:27017';
@@ -15,6 +16,7 @@ async function connectToDb() {
     await client.connect();
     db_users = client.db('silk-scraper-users');
     db_tasks = client.db('silk-scraper-tasks');
+    db_results = client.db('silk-scraper-results');
     console.log('Connected to MongoDB');
   } catch (error) {
     console.error('Could not connect to DB:', error);
@@ -84,6 +86,39 @@ app.post('/api/scheduleTask', async (req, res) => {
     console.error("Error scheduling task:", error);
     res.status(500).send({ message: "Failed to schedule task" });
   }
+});
+
+async function executeScrapingTask(task) {
+  console.log('Executing task', task._id);
+}
+
+///***********************************///
+///****** Tasks pool execution  ******///
+///***********************************///
+async function ExecuteTasks() {
+
+  const now = new Date();
+  const nowISO = now.toISOString();
+  const tasksCollection = db_tasks.collection('tasks');
+  const tasksToRun = await tasksCollection.find({ scheduleTime: { $lte: nowISO }, status: 'scheduled' }).toArray();
+
+  for (const task of tasksToRun) {
+    try {
+      const result = await executeScrapingTask(task); //TODO
+      //await resultsCollection.insertOne({ taskId: task._id, output: result, createdAt: new Date() }); TODO
+      await tasksCollection.updateOne({ _id: task._id }, { $set: { status: 'completed', lastRun: new Date().toISOString() } });
+    } catch (error) {
+      console.error('Failed to execute task', task._id, error);
+      await tasksCollection.updateOne({ _id: task._id }, { $set: { status: 'error' } });
+    }
+  }
+}
+
+cron.schedule('* * * * *', () => {
+  // every min
+  ExecuteTasks().catch(error => {
+    console.error('Error in scheduled task:', error);
+  });
 });
 
 app.listen(port, () => {
