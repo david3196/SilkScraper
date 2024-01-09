@@ -5,6 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 const cron = require('node-cron');
+const executeScrapingTask = require('./taskLauncher');
 
 const port = 3000;
 const mongoUri = 'mongodb://127.0.0.1:27017';
@@ -88,9 +89,7 @@ app.post('/api/scheduleTask', async (req, res) => {
   }
 });
 
-async function executeScrapingTask(task) {
-  console.log('Executing task', task._id);
-}
+
 
 ///***********************************///
 ///****** Tasks pool execution  ******///
@@ -104,8 +103,8 @@ async function ExecuteTasks() {
 
   for (const task of tasksToRun) {
     try {
-      const result = await executeScrapingTask(task); //TODO
-      //await resultsCollection.insertOne({ taskId: task._id, output: result, createdAt: new Date() }); TODO
+      const result = await executeScrapingTask(task, db_results);
+      console.log('Task result: ', result);
       await tasksCollection.updateOne({ _id: task._id }, { $set: { status: 'completed', lastRun: new Date().toISOString() } });
     } catch (error) {
       console.error('Failed to execute task', task._id, error);
