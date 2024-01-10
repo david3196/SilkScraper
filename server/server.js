@@ -89,7 +89,24 @@ app.post('/api/scheduleTask', async (req, res) => {
   }
 });
 
+app.get('/api/getUserTasks', async (req, res) => {
+  try {
+    console.log('req.query', req.query)
+    const userEmail = req.query.user;
+    console.log('userEmail', userEmail);
+    if (!userEmail) {
+      return res.status(400).send('Missing email parameter');
+    }
+    const usersCollection = db_users.collection('users');
+    const user = await usersCollection.findOne({ email: userEmail });
 
+    const tasks = await db_tasks.find({ uid: ObjectId(user._id) }).toArray();
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).send('Error fetching tasks');
+  }
+});
 
 ///***********************************///
 ///****** Tasks pool execution  ******///

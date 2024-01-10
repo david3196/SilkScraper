@@ -70,26 +70,12 @@
         <div class="card my-tasks-card">
             <h3>My Tasks</h3>
             <ul>
-                <li>
+                <li v-for="task in tasks" :key="task._id.$oid">
                     <i class="fas fa-circle-notch task-icon"></i>
-                    <span class="task-name">Pub Med Central latest news crawling</span>
-                    <span class="task-date">Today</span>
-                    <span class="task-status not-started">Just Started</span>
+                    <span class="task-name">{{ task.taskDetails.name }}</span>
+                    <span class="task-date">{{ formatDate(task.scheduleTime) }}</span>
+                    <span :class="['task-status', task.status]">{{ formatStatus(task.status) }}</span>
                     <span class="task-priority high">High Priority</span>
-                </li>
-                <li>
-                    <i class="fas fa-circle-notch task-icon"></i>
-                    <span class="task-name">Google Scholar machine learning crawling</span>
-                    <span class="task-date">Tomorrow</span>
-                    <span class="task-status not-started">Not Started</span>
-                    <span class="task-priority high">Low Priority</span>
-                </li>
-                <li>
-                    <i class="fas fa-circle-notch task-icon"></i>
-                    <span class="task-name">Google Scholar page scraping</span>
-                    <span class="task-date">Friday</span>
-                    <span class="task-status not-started">Not Started</span>
-                    <span class="task-priority high">Medium Priority</span>
                 </li>
             </ul>
         </div> 
@@ -97,6 +83,8 @@
 </template>
 
 <script>
+    import { ref, onMounted } from 'vue';
+    import { useStore } from 'vuex';
     import VueCal from 'vue-cal';
     import 'vue-cal/dist/vuecal.css';
 
@@ -106,33 +94,74 @@
             VueCal
         },
         data() {
-        return {
-            selectedDates: [],
-            myEvents: [
-            {
-                start: new Date(2023, 11, 5, 10, 0),
-                end: new Date(2023, 11, 5, 12, 0), 
-                title: 'Run web crawler for the latest med news',
-                content: '',
-                classes: 'event-class'
-            }
-            ],
-        };
+            return {
+                selectedDates: [],
+                myEvents: [
+                {
+                    start: new Date(2023, 11, 5, 10, 0),
+                    end: new Date(2023, 11, 5, 12, 0), 
+                    title: 'Run web crawler for the latest med news',
+                    content: '',
+                    classes: 'event-class'
+                }
+                ],
+            };
         },
+        setup() {
+            const tasks = ref([]);
+
+            const store = useStore();
+
+            const user = store.getters.userEmail;
+            console.log(user);
+            const fetchTasks = async () => {
+                try {
+                    const response = await fetch(`/api/getUserTasks?user=${user}`); 
+                    if (response.ok) {
+                        const data = await response.json();
+                        tasks.value = data;
+                    } else {
+                        console.error('Failed to fetch tasks');
+                    }
+                } catch (error) {
+                    console.error('Error fetching tasks:', error);
+                }
+            };
+
+            onMounted(() => {
+                fetchTasks();
+            });
+
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                return date.toDateString();
+            };
+
+            const formatStatus = (status) => {
+                switch (status) {
+                    case 'not-started': return 'Not Started';
+                    case 'error': return 'Error';
+                    default: return status;
+                }
+            };
+
+            return { tasks, formatDate, formatStatus };
+        },
+
         methods: {
-        eventClicked(event) {
-            console.log('Event clicked:', event);
-        },
-        dayClicked(day) {
-            console.log('Day clicked:', day);
-            this.selectedDates = [day.date];
-        },
-        cellMouseEnter(date) {
-            console.log('Mouse entered cell with date:', date);
-        },
-        cellMouseLeave(date) {
-            console.log('Mouse left cell with date:', date);
-        },
+            eventClicked(event) {
+                console.log('Event clicked:', event);
+            },
+            dayClicked(day) {
+                console.log('Day clicked:', day);
+                this.selectedDates = [day.date];
+            },
+            cellMouseEnter(date) {
+                console.log('Mouse entered cell with date:', date);
+            },
+            cellMouseLeave(date) {
+                console.log('Mouse left cell with date:', date);
+            },
         }
     };
 </script>
