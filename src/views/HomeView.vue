@@ -69,15 +69,17 @@
 
         <div class="card my-tasks-card">
             <h3>My Tasks</h3>
-            <ul>
-                <li v-for="task in tasks" :key="task._id.$oid">
-                    <i class="fas fa-circle-notch task-icon"></i>
-                    <span class="task-name">{{ task.taskDetails.name }}</span>
-                    <span class="task-date">{{ formatDate(task.scheduleTime) }}</span>
-                    <span :class="['task-status', task.status]">{{ formatStatus(task.status) }}</span>
-                    <span class="task-priority high">High Priority</span>
-                </li>
-            </ul>
+            <div class="task-list-container">
+                <ul>
+                    <li v-for="task in sortedTasks" :key="task._id.$oid">
+                        <i class="fas fa-circle-notch task-icon"></i>
+                        <span class="task-name">{{ task.taskDetails.name }}</span>
+                        <span class="task-date">{{ formatDate(task.scheduleTime) }}</span>
+                        <span :class="['task-status', task.status]">{{ formatStatus(task.status) }}</span>
+                        <span class="task-priority">{{ formatFrequency(task.taskDetails.frequency) }}</span>
+                    </li>
+                </ul>
+            </div>
         </div> 
     </div>
 </template>
@@ -107,6 +109,15 @@
                 ],
             };
         },
+        computed: {
+            sortedTasks() {
+                return [...this.tasks].sort((a, b) => {
+                    const dateA = new Date(a.scheduleTime);
+                    const dateB = new Date(b.scheduleTime);
+                    return dateB - dateA;
+                });
+            }
+        },
         setup() {
             const tasks = ref([]);
 
@@ -116,7 +127,7 @@
             console.log(user);
             const fetchTasks = async () => {
                 try {
-                    const response = await fetch(`/api/getUserTasks?user=${user}`); 
+                    const response = await fetch(`http://localhost:3000/api/getUserTasks?user=${encodeURIComponent(user)}`); 
                     if (response.ok) {
                         const data = await response.json();
                         tasks.value = data;
@@ -139,30 +150,25 @@
 
             const formatStatus = (status) => {
                 switch (status) {
-                    case 'not-started': return 'Not Started';
+                    case 'scheduled': return 'Scheduled';
                     case 'error': return 'Error';
+                    case 'completed': return 'Completed';
                     default: return status;
                 }
             };
 
-            return { tasks, formatDate, formatStatus };
+            const formatFrequency = (frequency) => {
+                switch (frequency) {
+                    case 'none': return 'One-Time Task';
+                    case 'weekly': return 'Weekly Task';
+                    case 'monthly': return 'Monthly Task';
+                    default: return frequency;
+                }
+            };
+
+            return { tasks, formatDate, formatStatus, formatFrequency };
         },
 
-        methods: {
-            eventClicked(event) {
-                console.log('Event clicked:', event);
-            },
-            dayClicked(day) {
-                console.log('Day clicked:', day);
-                this.selectedDates = [day.date];
-            },
-            cellMouseEnter(date) {
-                console.log('Mouse entered cell with date:', date);
-            },
-            cellMouseLeave(date) {
-                console.log('Mouse left cell with date:', date);
-            },
-        }
     };
 </script>
 
@@ -293,8 +299,6 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    overflow-y: auto;
 }
 
 .my-tasks-card h3 {
@@ -307,6 +311,7 @@
 .my-tasks-card ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .my-tasks-card li {
@@ -317,6 +322,23 @@
     background-color: #444;
     color: white;
     border-radius: 5px;
+}
+
+.completed {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+
+.scheduled {
+    color: orange;
+}
+
+.task-list-container{
+    overflow-y: auto;
+    margin-bottom: 20px;
 }
 
 .task-icon {
