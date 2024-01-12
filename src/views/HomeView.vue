@@ -85,7 +85,7 @@
 </template>
 
 <script>
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, computed } from 'vue';
     import { useStore } from 'vuex';
     import VueCal from 'vue-cal';
     import 'vue-cal/dist/vuecal.css';
@@ -123,11 +123,12 @@
 
             const store = useStore();
 
-            const user = store.getters.userEmail;
-            console.log(user);
+            const user = computed(() => store.getters.userEmail);
+            const userEmail = user.value;
+            
             const fetchTasks = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/getUserTasks?user=${encodeURIComponent(user)}`); 
+                    const response = await fetch(`http://localhost:3000/api/getUserTasks?user=${encodeURIComponent(userEmail)}`); 
                     if (response.ok) {
                         const data = await response.json();
                         tasks.value = data;

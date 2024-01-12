@@ -34,6 +34,7 @@ import { ref } from 'vue';
 import { auth } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'vue-router';
+import store from '../../store';
 
 export default {
     name: 'SignupView',
@@ -72,7 +73,10 @@ export default {
                 return;
             }
             try {
-                await createUserWithEmailAndPassword(auth, email.value, password.value);
+                const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+                store.dispatch('setUser', {
+                    email: userCredential.user.email,
+                });
 
                 const userData = {
                     firstName: firstName.value,

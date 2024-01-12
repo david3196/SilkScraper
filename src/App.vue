@@ -90,7 +90,7 @@
 
         const logout = async () => {
             await auth.signOut();
-            store.dispatch('setUser', null);
+            store.dispatch('clearUser');
             user.value = null;
             userObj.value = null;
             dropdownOpen.value = false;

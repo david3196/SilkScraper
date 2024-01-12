@@ -19,6 +19,7 @@
 
 <script>
 import { ref } from 'vue';
+import store from '../../store';
 import { auth } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'vue-router';
@@ -32,7 +33,10 @@ export default {
 
         const login = async () => {
             try {
-                await signInWithEmailAndPassword(auth, email.value, password.value);
+                const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+                store.dispatch('setUser', {
+                    email: userCredential.user.email,
+                });
                 router.push('/');
             } catch (error) {
                 alert(error.message);
