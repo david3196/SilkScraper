@@ -24,7 +24,7 @@
                     <div v-if="dropdownOpen" class="dropdown-menu">
                         <router-link v-if="!user" to="/login"  @click="login" class="dropdown-item">Login</router-link>
                         <router-link v-if="!user" to="/signup"  @click="signup" class="dropdown-item">Sign Up</router-link>
-                        <button v-if="user" @click="logout" class="dropdown-item">Logout</button>
+                        <button v-if="user" @click="logout" class="dropdown-item" id="logout-btn">Logout</button>
                     </div>   
                 </div>
             </header>
@@ -262,6 +262,18 @@
 
     .dropdown .dropdown-menu {
         display: block;
+    }
+
+    #logout-btn{
+        border: none;
+        display: inline;
+        background: none;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    #logout-btn:hover {
+        background-color: #f60;
     }
 
     ::-webkit-scrollbar {
