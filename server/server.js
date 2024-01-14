@@ -1,11 +1,12 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId  } = require('mongodb');
 const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
 const cron = require('node-cron');
 const executeScrapingTask = require('./taskLauncher');
+const XLSX = require('xlsx');
 
 const port = 3000;
 const mongoUri = 'mongodb://127.0.0.1:27017';
@@ -105,6 +106,44 @@ app.get('/api/getUserTasks', async (req, res) => {
   } catch (error) {
     console.error('Error fetching tasks:', error);
     res.status(500).send('Error fetching tasks');
+  }
+});
+
+app.get('/api/downloadExcel/:taskId', async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const resultsCollection = db_results.collection('results');
+    const taskResults = await resultsCollection.findOne({ tid: new ObjectId(taskId) });
+
+    if (!taskResults) {
+      res.status(404).send('Task results not found');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(taskResults.output);
+
+    taskResults.output.forEach((row, index) => {
+      const excelRowIndex = index + 2;
+      const linkCellRef = XLSX.utils.encode_cell({ c: 1, r: excelRowIndex });
+
+      if (!worksheet[linkCellRef]) {
+          worksheet[linkCellRef] = {};
+        }
+      
+      worksheet[linkCellRef].l = { Target: row.link };
+    });
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Results');
+
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', 'attachment; filename="task-results.xlsx"');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    console.log('Sending Excel file');
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error downloading Excel:', error);
+    res.status(500).send('Error downloading Excel');
   }
 });
 

@@ -37,6 +37,11 @@
             </div>
 
             <div class="form-group">
+                    <label for="collection">Collection name:</label>
+                    <input id="collection" v-model="taskData.collection" type="text" required>
+                </div>
+
+            <div class="form-group">
                 <button type="submit">Schedule Task</button>
             </div>
         </form>
@@ -58,6 +63,7 @@ export default {
                 string: '',
                 datetime: '',
                 frequency: 'none',
+                collection: '',
             }
         };
     },
@@ -93,7 +99,7 @@ export default {
 
 <style scoped>
 .scheduler-container {
-    max-width: 500px;
+    width: 500px;
     margin: 20px auto;
     padding: 20px;
 }

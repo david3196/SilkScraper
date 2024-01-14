@@ -3,7 +3,7 @@
         <aside class="sidebar">
             <nav>
                 <button :class="['nav-item', { active: currentRouteName === 'home' }]" @click="goTo('home')"><i class="fas fa-tachometer-alt"></i></button>
-                <button :class="['nav-item', { active: currentRouteName === 'reports' }]" @click="goTo('reports')"><i class="fas fa-folder-open"></i></button>
+                <button :class="['nav-item', { active: currentRouteName === 'results' }]" @click="goTo('results')"><i class="fas fa-folder-open"></i></button>
                 <button :class="['nav-item', { active: currentRouteName === 'analytics' }]" @click="goTo('analytics')"><i class="fas fa-chart-line"></i></button>
                 <button :class="['nav-item', { active: currentRouteName === 'scheduler' }]" @click="goTo('scheduler')"><i class="fas fa-spider"></i></button>
             </nav>

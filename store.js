@@ -25,6 +25,6 @@ export default createStore({
     },
   },
   getters: {
-    userEmail: state => state.user? state.user.email : null,
+    userEmail: state => state.user ? state.user.email : null,
   }
 });

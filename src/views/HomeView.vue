@@ -2,13 +2,7 @@
     <div class="cards-container">
         <div class="card calendar-card">
             <vue-cal
-                :events="myEvents"
                 small
-                :on-event-click="eventClicked"
-                :on-day-click="dayClicked"
-                :on-cell-mouse-enter="cellMouseEnter"
-                :on-cell-mouse-leave="cellMouseLeave"
-                :selected-dates="selectedDates"
                 :indicators="true"
                 :disable-views="['years']"
                 style="
@@ -28,19 +22,19 @@
             <div class="scraping-tasks-content">
                 <div class="scraping-tasks-item">
                     <span>Today, so far</span>
-                    <span>1 task</span>
+                    <span>{{ todayTasks }}</span>
                 </div>
                 <div class="scraping-tasks-item">
                     <span>Yesterday</span>
-                    <span>0 tasks</span>
+                    <span>{{ yesterdayTasks }}</span>
                 </div>
                 <div class="scraping-tasks-item">
                     <span>In the last 7 days</span>
-                    <span>5 tasks</span>
+                    <span>{{ last7DaysTasks  }}</span>
                 </div>
                 <div class="scraping-tasks-item">
                     <span>In the last 28 days</span>
-                    <span>9 tasks</span>
+                    <span>{{ last28DaysTasks  }}</span>
                 </div>
             </div>
         </div>
@@ -48,21 +42,9 @@
         <div class="card directory-card">
             <h3>My Directory</h3>
             <div class="directory-list">
-                <div class="directory-item">
+                <div v-for="collection in collections" :key="collection" class="directory-item">
                     <i class="fas fa-folder fa-3x"></i>
-                    <span>Collection 1</span>
-                </div>
-                <div class="directory-item">
-                    <i class="fas fa-folder fa-3x"></i>
-                    <span>Collection 2</span>
-                </div>
-                <div class="directory-item">
-                    <i class="fas fa-folder fa-3x"></i>
-                    <span>Collection 3</span>
-                </div>
-                <div class="directory-item">
-                    <i class="fas fa-folder fa-3x"></i>
-                    <span>Collection 4</span>
+                    <span>{{ collection }}</span>
                 </div>
             </div>
         </div>
@@ -85,93 +67,148 @@
 </template>
 
 <script>
-    import { ref, onMounted, computed } from 'vue';
-    import { useStore } from 'vuex';
-    import VueCal from 'vue-cal';
-    import 'vue-cal/dist/vuecal.css';
+import { ref, onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
+import VueCal from 'vue-cal';
+import 'vue-cal/dist/vuecal.css';
 
-    export default {
-        name: 'HomeView',
-        components: {
-            VueCal
-        },
-        data() {
-            return {
-                selectedDates: [],
-                myEvents: [
-                {
-                    start: new Date(2023, 11, 5, 10, 0),
-                    end: new Date(2023, 11, 5, 12, 0), 
-                    title: 'Run web crawler for the latest med news',
-                    content: '',
-                    classes: 'event-class'
-                }
-                ],
-            };
-        },
-        computed: {
-            sortedTasks() {
-                return [...this.tasks].sort((a, b) => {
-                    const dateA = new Date(a.scheduleTime);
-                    const dateB = new Date(b.scheduleTime);
-                    return dateB - dateA;
-                });
-            }
-        },
-        setup() {
-            const tasks = ref([]);
+export default {
+    name: 'HomeView',
+    components: {
+        VueCal
+    },
+    setup() {
+        const tasks = ref([]);
+        const store = useStore();
+        const user = computed(() => store.getters.userEmail);
 
-            const store = useStore();
-
-            const user = computed(() => store.getters.userEmail);
+        const fetchTasks = async () => {
             const userEmail = user.value;
-            
-            const fetchTasks = async () => {
-                try {
-                    const response = await fetch(`http://localhost:3000/api/getUserTasks?user=${encodeURIComponent(userEmail)}`); 
-                    if (response.ok) {
-                        const data = await response.json();
-                        tasks.value = data;
-                    } else {
-                        console.error('Failed to fetch tasks');
-                    }
-                } catch (error) {
-                    console.error('Error fetching tasks:', error);
+            try {
+                const response = await fetch(`http://localhost:3000/api/getUserTasks?user=${encodeURIComponent(userEmail)}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    tasks.value = data;
+                } else {
+                    console.error('Failed to fetch tasks');
                 }
-            };
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+            }
+        };
 
-            onMounted(() => {
-                fetchTasks();
+        onMounted(() => {
+            fetchTasks();
+        });
+
+        const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            return date.toDateString();
+        };
+
+        const formatStatus = (status) => {
+            switch (status) {
+                case 'scheduled': return 'Scheduled';
+                case 'error': return 'Error';
+                case 'completed': return 'Completed';
+                default: return status;
+            }
+        };
+
+        const formatFrequency = (frequency) => {
+            switch (frequency) {
+                case 'none': return 'One-Time Task';
+                case 'weekly': return 'Weekly Task';
+                case 'monthly': return 'Monthly Task';
+                default: return frequency;
+            }
+        };
+
+        const sortedTasks = computed(() => {
+            return tasks.value.slice().sort((a, b) => {
+                const dateA = new Date(a.scheduleTime);
+                const dateB = new Date(b.scheduleTime);
+                return dateB - dateA;
             });
+        });
 
-            const formatDate = (dateString) => {
-                const date = new Date(dateString);
-                return date.toDateString();
-            };
+        const todayTasks = computed(() => {
+            const now = new Date();
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
 
-            const formatStatus = (status) => {
-                switch (status) {
-                    case 'scheduled': return 'Scheduled';
-                    case 'error': return 'Error';
-                    case 'completed': return 'Completed';
-                    default: return status;
+            return tasks.value.filter(task => {
+                const taskDate = new Date(task.scheduleTime);
+                return taskDate >= startOfDay && taskDate <= now && task.status === 'completed';
+            }).length;
+        });
+
+        const collections = computed(() => {
+            const collectionSet = new Set();
+            tasks.value.forEach(task => {
+                if (task.taskDetails && task.taskDetails.collection) {
+                    collectionSet.add(task.taskDetails.collection);
                 }
-            };
+            });
+            return Array.from(collectionSet);
+        });
 
-            const formatFrequency = (frequency) => {
-                switch (frequency) {
-                    case 'none': return 'One-Time Task';
-                    case 'weekly': return 'Weekly Task';
-                    case 'monthly': return 'Monthly Task';
-                    default: return frequency;
-                }
-            };
+        const yesterdayTasks = computed(() => {
+            const startOfYesterday = new Date();
+            startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+            startOfYesterday.setHours(0, 0, 0, 0);
 
-            return { tasks, formatDate, formatStatus, formatFrequency };
-        },
+            const endOfYesterday = new Date(startOfYesterday);
+            endOfYesterday.setHours(23, 59, 59, 999);
 
-    };
+            return tasks.value.filter(task => {
+                const taskDate = new Date(task.scheduleTime);
+                return taskDate >= startOfYesterday && taskDate <= endOfYesterday && task.status === 'completed';
+            }).length;
+        });
+
+        const last7DaysTasks = computed(() => {
+            const now = new Date();
+            const startOf7DaysAgo = new Date();
+            startOf7DaysAgo.setDate(startOf7DaysAgo.getDate() - 7);
+            startOf7DaysAgo.setHours(0, 0, 0, 0);
+
+            return tasks.value.filter(task => {
+                const taskDate = new Date(task.scheduleTime);
+                return taskDate >= startOf7DaysAgo && taskDate <= now && task.status === 'completed';
+            }).length;
+        });
+
+        const last28DaysTasks = computed(() => {
+            const now = new Date();
+            const startOf28DaysAgo = new Date();
+            startOf28DaysAgo.setDate(startOf28DaysAgo.getDate() - 28);
+            startOf28DaysAgo.setHours(0, 0, 0, 0);
+
+            return tasks.value.filter(task => {
+                const taskDate = new Date(task.scheduleTime);
+                return taskDate >= startOf28DaysAgo && taskDate <= now && task.status === 'completed';
+            }).length;
+        });
+
+
+
+        return {
+            tasks,
+            sortedTasks,
+            collections,
+            todayTasks,
+            yesterdayTasks,
+            last7DaysTasks,
+            last28DaysTasks,
+            formatDate,
+            formatStatus,
+            formatFrequency,
+        };
+    },
+};
 </script>
+
 
 <style>
 .vuecal__header button {
@@ -358,6 +395,7 @@
 .task-status {
     margin-right: 10px;
 }
+
 .not-started {
     color: red;
 }
@@ -371,6 +409,7 @@
     flex-direction: column;
     align-items: center;
 }
+
 .directory-card h3 {
     text-align: left;
     margin-bottom: 20px;
@@ -381,6 +420,7 @@
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .directory-item {
@@ -388,7 +428,7 @@
     border-radius: 5px;
     padding: 20px;
     margin: 10px;
-    width: calc(50% - 40px);
+    width: calc(50% - 20px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -398,11 +438,6 @@
 .directory-item i {
     margin-bottom: 10px;
     color: orange;
-}
-@media (min-width: 768px) {
-    .card {
-        width: calc(50% - 20px);
-    }
 }
 
 @media (max-width: 767px) {
