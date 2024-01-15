@@ -5,6 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import store from '../store';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import VueApexCharts from 'vue3-apexcharts';
 
 onAuthStateChanged(auth, (firebaseUser) => {
     if (firebaseUser) {
@@ -19,4 +20,5 @@ onAuthStateChanged(auth, (firebaseUser) => {
 const app = createApp(App);
 app.use(router);
 app.use(store); 
+app.component('apex-chart', VueApexCharts);
 app.mount('#app');
