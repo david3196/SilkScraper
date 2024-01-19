@@ -1,6 +1,6 @@
 # silk-scraper
 
-Lightweight web scraping application, for academic purposes only
+Lightweight web scraping application, for academic purposes only  
 Vue.js + Express.js + MongoDB + BeautifulSoup + Firebase
 
 ## Project setup
