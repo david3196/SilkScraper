@@ -17,7 +17,6 @@ def search_google_scholar(query, num_pages=20):
         if response.status_code == 200:
             all_results.append(response.text)
         else:
-            print(f"Failed to retrieve content on page {page / 10 + 1}", file=sys.stderr)
             break
 
     return all_results

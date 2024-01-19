@@ -7,9 +7,9 @@
                 :disable-views="['years']"
                 style="
                 --vuecal--selected-date-bg-color: orange;
-                --vuecal--text-color: #fff;
-                --vuecal--bg-color: #fff;
-                --vuecal--weekday-bg-color: #fff;
+                --vuecal--text-color: var(--color);
+                --vuecal--bg-color: var(--color);
+                --vuecal--weekday-bg-color: var(--color);
                 --vuecal--time-header-font-size: 4px;
                 "
             ></vue-cal>
@@ -191,8 +191,6 @@ export default {
             }).length;
         });
 
-
-
         return {
             tasks,
             sortedTasks,
@@ -212,7 +210,7 @@ export default {
 
 <style>
 .vuecal__header button {
-    color: #fff;
+    color: var(--color);
 }
 
 .vuecal__heading .weekday-label {
@@ -222,8 +220,8 @@ export default {
 .card {
     flex: 1 1 calc(50% - 20px);
     height: calc((100vh - 70px) / 2 - 20px);
-    background: #333; 
-    color: #fff;
+    background: var(--cards-color); 
+    color: var(--color);
     padding: 20px;
     margin: 10px; 
     border-radius: 10px;
@@ -237,7 +235,8 @@ export default {
     flex-wrap: wrap;
     align-content: flex-start; 
     overflow-y: auto; 
-    margin: 10px; 
+    margin: 10px;
+    background-color: var(--background-color);
 }
 
 .card h3 {
@@ -249,8 +248,8 @@ export default {
 }
 
 .scraping-tasks-card {
-    background-color: #333;
-    color: #fff;
+    background-color: var(--cards-color);
+    color: var(--color);
     border-radius: 10px;
     padding: 20px;
     display: flex;
@@ -270,7 +269,7 @@ export default {
 }
 
 .scraping-tasks-card li {
-    background-color: #555;
+    background-color: var(--list-color);
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;
@@ -297,7 +296,7 @@ export default {
 .scraping-tasks-card li .date-indicator {
     font-size: 0.8rem;
     text-align: right;
-    color: #aaa;
+    color: var(--color);
 }
 
 .scraping-tasks-header {
@@ -319,7 +318,7 @@ export default {
 }
 
 .scraping-tasks-item {
-    background-color: #333;
+    background-color: var(--list-color);
     padding: 10px;
     border-radius: 5px;
     display: flex;
@@ -332,7 +331,7 @@ export default {
 }
 
 .my-tasks-card {
-    background-color: #333;
+    background-color: var(--cards-color);
     border-radius: 10px;
     padding: 20px;
     display: flex;
@@ -357,8 +356,8 @@ export default {
     align-items: center;
     margin-bottom: 10px;
     padding: 10px;
-    background-color: #444;
-    color: white;
+    background-color: var(--list-color);
+    color: var(--color);
     border-radius: 5px;
 }
 
@@ -401,8 +400,8 @@ export default {
 }
 
 .directory-card {
-    background-color: #333;
-    color: white;
+    background-color: var(--cards-color);
+    color: var(--color);
     border-radius: 10px;
     padding: 20px;
     display: flex;
@@ -424,7 +423,7 @@ export default {
 }
 
 .directory-item {
-    background-color: #444;
+    background-color: var(--cards-color);
     border-radius: 5px;
     padding: 20px;
     margin: 10px;

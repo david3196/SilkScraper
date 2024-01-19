@@ -7,6 +7,9 @@ app.use(express.json());
 const cron = require('node-cron');
 const executeScrapingTask = require('./taskLauncher');
 const XLSX = require('xlsx');
+const path = require('path');
+const fs = require('fs');
+
 
 const port = 3000;
 const mongoUri = 'mongodb://127.0.0.1:27017';
@@ -145,6 +148,26 @@ app.get('/api/downloadExcel/:taskId', async (req, res) => {
     console.error('Error downloading Excel:', error);
     res.status(500).send('Error downloading Excel');
   }
+});
+
+app.get('/api/scripts', (req, res) => {
+    const scriptsPath = path.join(__dirname, './scripts/', 'scripts.json');
+    
+    fs.readFile(scriptsPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading scripts.json:', err);
+            res.status(500).send('Error reading scripts file');
+            return;
+        }
+        
+        try {
+            const scripts = JSON.parse(data);
+            res.json(scripts);
+        } catch (parseErr) {
+            console.error('Error parsing scripts.json:', parseErr);
+            res.status(500).send('Error parsing scripts file');
+        }
+    });
 });
 
 ///***********************************///

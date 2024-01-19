@@ -17,9 +17,6 @@
                 <div class="profile-pic dropdown unselectable">
                     <button class="profile-button" @click="toggleDropdown">
                         <img src="./assets/user.png" alt="Profile Picture">
-                        <!-- TODO -->
-                        <!-- <img v-if="user" :src="user.profilePicture">
-                        <img v-else :src="assets/user.png"> --> 
                     </button>
                     <div v-if="dropdownOpen" class="dropdown-menu">
                         <router-link v-if="!user" to="/login"  @click="login" class="dropdown-item">Login</router-link>
@@ -117,7 +114,12 @@
             dropdownOpen.value = !dropdownOpen.value;
         };
 
-        return { user, currentRouteName, goTo, route, logout, dashboard, scheduler, login, signup, userObj, dropdownOpen, toggleDropdown };
+        const currentMode = computed(() => {
+            const themePreference = localStorage.getItem('themePreference');
+            return themePreference === 'dark' ? 'dark-mode' : 'light-mode';
+        });
+
+        return { user, currentRouteName, goTo, route, logout, dashboard, scheduler, login, signup, userObj, dropdownOpen, toggleDropdown, currentMode };
     },
         components: {
             ModeSwitchBtn
@@ -131,6 +133,31 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+    }
+
+    .lightmode{
+        --color: #333;
+        --background-color: #F5EEE6;
+        --cards-color: #FFF8E3;
+        --navbar-color: #ece6d5;
+        --list-color: #dfd0a9;
+        
+    }
+
+    .darkmode {
+        --color: white;
+        --background-color: rgb(26, 26, 26);
+        --cards-color: #333;
+        --navbar-color: #222;
+        --list-color: #444;
+    }
+
+    .site-name{
+        color: var(--color);
+    }
+
+    .fas{
+        color: var(--color);
     }
 
     .unselectable {
@@ -147,7 +174,7 @@
     }
 
     .sidebar {
-        background-color: #333;
+        background-color: var(--cards-color);
         width: 75px;
         height: 100vh;
         position: fixed;
@@ -162,7 +189,7 @@
     .nav-item {
         background: none;
         border: none;
-        color: white;
+        color: var(--color);
         width: 100%;
         padding: 20px 0;
         text-align: center;
@@ -192,7 +219,7 @@
         margin-left: 75px;
         width: calc(100% - 75px);
         overflow-y: auto;
-        background-color: rgb(26, 26, 26);
+        background-color: var(--background-color);
         box-sizing: border-box;
     }
 
@@ -200,8 +227,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background-color: #222;
-        color: white;
+        background-color: var(--navbar-color);
+        color: var(--color);
         padding: 10px;
         height: 50px;
         margin: 0;

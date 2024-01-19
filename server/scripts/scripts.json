@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Google Scholar",
+        "script": "google_scholar.js"
+    },
+    {
+        "name": "ArXiv",
+        "script": "arxiv.js"
+    },
+    {
+        "name": "NCBI",
+        "script": "ncbi.js"
+    }
+]

@@ -41,15 +41,19 @@ export default {
                 type: 'donut',
             },
             labels: ['Completed Tasks', 'Failed Tasks'],
+            legend: {
+                position: 'bottom',
+                labels: {
+                    colors: '#f60'
+                },
+            },
             responsive: [{
                 breakpoint: 480,
                 options: {
                     chart: {
                         width: 200
                     },
-                    legend: {
-                        position: 'bottom'
-                    }
+                    
                 }
             }]
         });
@@ -80,10 +84,23 @@ export default {
             },
             xaxis: {
                 categories: [],
+                labels: {
+                    style: {
+                        colors: '#f60',
+                    }
+                }
             },
             yaxis: {
                 title: {
-                    text: 'Number of Tasks'
+                    text: 'Number of Tasks',
+                    style: {
+                        color: '#f60',
+                    }
+                },
+                labels: {
+                    style: {
+                        colors: '#f60',
+                    }
                 }
             },
             fill: {
@@ -168,11 +185,13 @@ export default {
 .analytics-container {
     width: 500px;
     margin: 20px auto;
-    padding: 20px;
+    padding: 10px;
+    overflow-y: auto;
 }
 .analytics-h2{
     text-align: center;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 .chart-container {
     display: flex;
@@ -186,7 +205,7 @@ export default {
 .dropdown-container label {
     display: block;
     margin-bottom: 5px;
-    color: white;
+    color: var(--color);
 }
 .dropdown-container select {
     padding: 8px 16px;
@@ -196,13 +215,25 @@ export default {
 .donut-chart,
 .bar-chart {
     position: relative;
-    height: 400px;
+    max-height: 400px;
 }
 
 @media (max-width: 767px) {
     .donut-chart,
     .bar-chart {
         height: 300px;
+    }
+    .donut-chart{
+        height: auto;
+    }
+    .chart-container{
+        
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+    .analytics-container{
+        max-width: 300px;
+        margin: 10px auto;
     }
 }
 </style>

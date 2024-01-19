@@ -3,7 +3,7 @@
         <h2 class="results-h2">My Scraping Tasks Results</h2>
         <div class="select-container">
             <div class="select-container">
-                <label for="collection-select">Choose a collection:</label>
+                <label for="collection-select" class="select-text">Choose a collection:</label>
                 <select id="collection-select" v-model="selectedCollection" @change="fetchTasksForCollection">
                 <option value="">Select a collection</option>
                 <option v-for="collection in collections" :key="collection" :value="collection">
@@ -138,8 +138,9 @@ export default {
 
 <style scoped>
 .table-container {
-    width: auto;
     margin: 20px auto;
+    overflow-y: auto;
+    max-height: 500px;
 }
 .results-container {
     width: 50%;
@@ -154,8 +155,12 @@ export default {
 .select-container label {
     display: block;
     margin-bottom: 10px;
-    color: #333;
-    text-align: left;
+    margin-top: 30px;
+    color: var(--color);
+    text-align: center;
+}
+.select-text{
+    color: var(--color);
 }
 .select-container select {
     width: 100%;
@@ -204,15 +209,20 @@ export default {
 }
 
 @media (max-width: 767px) {
-    .results-container {
-        margin: 10px 10px;
-        padding: 10px;
-    }
     .tasks-table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
     }
+    .table-container {
+    margin: 0px;
+    overflow-y: auto;
+    max-height: 700px;
+    }
 
+    .results-container{
+        width: 100%;
+        margin: 10px auto;
+    }
 }
 </style>

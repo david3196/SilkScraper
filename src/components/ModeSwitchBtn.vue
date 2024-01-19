@@ -1,57 +1,62 @@
 <template>
-    <div class="btn_theme" @click="toggleDarkMode">
-        <div class="btn__indicator" :class="{ 'darkmode': isDarkMode }">
+    <div class="btn_theme" @click="toggleTheme">
+        <div class="btn__indicator" :class="{ 'darkmode': themePreference === 'dark' }">
             <div class="btn__icon-container">
-                <font-awesome-icon v-if="isDarkModeInitialized" :icon="isDarkMode ? 'moon' : 'sun'" class="btn__icon" />
+                <font-awesome-icon v-if="isInitialized" :icon="themePreference === 'dark' ? 'moon' : 'sun'"
+                    class="btn__icon" />
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import { library } from '@fortawesome/fontawesome-svg-core';
-    import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
-    import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-    library.add(faSun, faMoon);
+library.add(faSun, faMoon);
 
-    export default {
-        components: {
-            FontAwesomeIcon
+export default {
+    components: {
+        FontAwesomeIcon
+    },
+    data() {
+        return {
+            themePreference: 'dark',
+            isInitialized: false,
+        };
+    },
+    mounted() {
+        this.loadThemePreference();
+        this.isInitialized = true;
+        this.applyTheme();
+    },
+    methods: {
+        toggleTheme() {
+            this.themePreference = this.themePreference === 'dark' ? 'light' : 'dark';
+            this.storeThemePreference(this.themePreference);
+            this.applyTheme();
         },
-        data() {
-            return {
-                isDarkMode: true,
-                isDarkModeInitialized: false,
-            };
+        storeThemePreference(value) {
+            localStorage.setItem('themePreference', value);
         },
-        mounted() {
-            this.loadDarkMode();
-            this.isDarkModeInitialized = true;
-            if (this.isDarkMode) {
+        loadThemePreference() {
+            const themePreference = localStorage.getItem('themePreference');
+            this.themePreference = themePreference || 'dark';
+        },
+        applyTheme() {
+            if (this.themePreference === 'dark') {
+                document.body.classList.remove('lightmode');
                 document.body.classList.add('darkmode');
+            } else {
+                document.body.classList.remove('darkmode');
+                document.body.classList.add('lightmode');
             }
         },
-        methods: {
-            toggleDarkMode() {
-                this.isDarkMode = !this.isDarkMode;
-                this.storeDarkMode(this.isDarkMode);
-                if (this.isDarkMode) {
-                    document.body.classList.add('darkmode');
-                } else {
-                    document.body.classList.remove('darkmode');
-                }
-            },
-            storeDarkMode(value) {
-                localStorage.setItem('darkmode', value);
-            },
-            loadDarkMode() {
-                const darkmode = localStorage.getItem('darkmode');
-                this.isDarkMode = darkmode === 'true';
-            },
-        },
-    };
+    },
+};
 </script>
+
 
 <style >
     :root{

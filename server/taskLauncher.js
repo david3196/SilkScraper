@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 
 async function executeScrapingTask(task, db) {
   return new Promise((resolve, reject) => {
-    const pythonProcess = spawn('py', ['scripts/scr1.py', task.taskDetails.string]);
+    const pythonProcess = spawn('py', [`scripts/${task.taskDetails.siteScript}`, task.taskDetails.string]);
 
     let result = '';
     pythonProcess.stdout.on('data', (data) => {

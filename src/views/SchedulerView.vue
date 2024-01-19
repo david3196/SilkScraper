@@ -9,13 +9,13 @@
             </div>
 
             <div class="form-group">
-                <label for="site">Site to scrape:</label>
-                <select id="site" v-model="taskData.site">
-                    <option v-for="site in sites" :key="site.name" :value="site.name">
-                        {{ site.name }} - {{ site.description }}
-                    </option>
-                </select>
-            </div>
+            <label for="site">Site to scrape:</label>
+            <select id="site" v-model="taskData.site" @change="updateTaskData(taskData.site)">
+                <option v-for="site in sites" :key="site.name" :value="site.name">
+                    {{ site.name }}
+                </option>
+            </select>
+        </div>
 
             <div class="form-group">
                 <label for="string">String or Regex:</label>
@@ -49,40 +49,49 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { useStore } from 'vuex';
+
 export default {
-    data() {
-        return {
-            sites: [
-                { name: 'Site1', description: 'description of Site1' },
-                { name: 'Site2', description: 'description of Site2' },
-            ],
-            taskData: {
-                name: '',
-                site: '',
-                string: '',
-                datetime: '',
-                frequency: 'none',
-                collection: '',
-            }
-        };
-    },
     setup() {
         const store = useStore();
+        const userEmail = ref(store.getters.userEmail);
 
-        const userEmail = store.getters.userEmail;
+        const sites = ref([
+            { name: "Google Scholar", script: "google_scholar.py" },
+            { name: "ArXiv", script: "arxiv.py" },
+            { name: "NCBI", script: "ncbi.py" },
+            { name: "Technium Science", script: "techniumScience.py"}
+        ]);
 
-        return {
-            userEmail
+        const taskData = ref({
+            name: '',
+            site: '',
+            siteScript: '',
+            string: '',
+            datetime: '',
+            frequency: 'none',
+            collection: '',
+        });
+
+        const updateTaskData = (siteName) => {
+            const selectedSite = sites.value.find(site => site.name === siteName);
+            if (selectedSite) {
+                taskData.value.siteScript = selectedSite.script;
+            } else {
+                taskData.value.siteScript = '';
+            }
         };
-    },
-    methods: {
-        async scheduleTask() {
+
+        const scheduleTask = async () => {
             try {
                 const response = await fetch('http://localhost:3000/api/scheduleTask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userEmail: this.userEmail, taskData: this.taskData })
+                    body: JSON.stringify({
+                        userEmail: userEmail.value,
+                        taskData: taskData.value
+                    }),
                 });
                 if (response.ok) {
                     console.log("Task scheduled successfully");
@@ -92,8 +101,16 @@ export default {
             } catch (error) {
                 console.error("Error scheduling task:", error);
             }
-        }
-    }
+        };
+
+        return {
+            userEmail,
+            sites,
+            taskData,
+            updateTaskData,
+            scheduleTask
+        };
+    },
 };
 </script>
 
@@ -102,13 +119,15 @@ export default {
     width: 500px;
     margin: 20px auto;
     padding: 20px;
+    overflow-y: auto;
 }
 .scheduler-h2{
     text-align: center;
-    margin-top: 20px;
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 .scheduler-form{
-    margin: 70px 20px;
+    margin: 10px 20px;
     align-items: center;
 }
 .form-group {
@@ -118,7 +137,7 @@ export default {
 label {
     display: block;
     margin-bottom: 5px;
-    color: white;
+    color: var(--color);
 }
 
 input[type="text"],
